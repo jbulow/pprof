@@ -119,7 +119,15 @@ func initTools(b *binrep, config string) {
 // If it cannot find it, returns cmd.
 func findExe(cmd string, paths []string) (string, bool) {
 	for _, p := range paths {
-		cp := filepath.Join(p, cmd)
+		d, err := os.Stat(p)
+		if err != nil {
+			return cmd, false
+		}
+		var cp string = p
+		if m := d.Mode(); m.IsDir() {
+			cp = filepath.Join(cp, cmd)
+		}
+
 		if c, err := exec.LookPath(cp); err == nil {
 			return c, true
 		}
